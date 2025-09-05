@@ -1,6 +1,6 @@
 # Gen AI API Agents
 
-A .NET 8 Web API demonstration showcasing AI-powered chat agents using Microsoft Semantic Kernel and Azure OpenAI. This solution implements a multi-agent architecture with intelligent routing, persistent session management, and domain-specific conversational AI capabilities.
+A .NET 8 Web API demonstration showcasing AI-powered chat agents using Microsoft Semantic Kernel and Azure OpenAI. This solution implements a multi-agent architecture with intelligent routing and domain-specific conversational AI capabilities.
 
 ## 🎯 What This Solution Demonstrates
 
@@ -37,42 +37,43 @@ This project serves as a comprehensive example of modern AI agent architecture p
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Client App    │────│   API Gateway    │────│  Chat Controller │
+│   Client App    │────│   API Gateway    │────│ Chat Controller │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
                                                          │
                                                          ▼
                                ┌─────────────────────────────────────┐
-                               │          Router Agent               │
+                               │          Coordinator Agent          │
                                └─────────────────────────────────────┘
                                          │
-                        ┌────────────────┼────────────────┐
-                        ▼                ▼                ▼
-                ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-                │ Movie Agent  │ │Missing Person│ │Purchase Agent│
-                │              │ │    Agent     │ │              │
-                └──────────────┘ └──────────────┘ └──────────────┘
-                        │                │                │
-                        └────────────────┼────────────────┘
                                          ▼
-                               ┌─────────────────────────────────────┐
-                               │       Azure OpenAI Service         │
-                               └─────────────────────────────────────┘
+                        ┌─────────────────────────────────┐
+                        ▼                                 ▼
+                ┌──────────────┐                  ┌──────────────┐
+                │    DevOps    │                  │   Service    │
+                │    Agent     │                  │    Agent     │
+                └──────────────┘                  └──────────────┘
+                        │                                 │
+                        └────────────────────────────────┘
+                                         │
+                                         ▼
+                       ┌─────────────────────────────────────┐
+                       │       Azure OpenAI Service          │
+                       └─────────────────────────────────────┘
 ```
 
 ## 🚀 Key Components
 
 ### Controllers
 - **ChatController**: Main API endpoint handling chat requests with two modes:
-  - `/chat` - General chat with missing persons focus
-  - `/chat/movies` - Multi-agent movie ticket system
+  - `/chat` - General chat 
+
 
 ### Services
+** Not being used but the classes included for reference**
 - **ChatHistoryManager**: Manages persistent chat sessions with automatic cleanup
 - **ChatHistoryCleanupService**: Background service for maintaining chat session hygiene
 
 ### Models
-- **PersonDetail**: Comprehensive missing person information model
-- **Movie**: Movie showtime and ticket information
 - **ChatProviderRequest/Response**: API contract models
 
 ### Middleware
@@ -108,10 +109,29 @@ cd gen-ai-api-agents
 2. Configure Azure OpenAI settings in `appsettings.json` or create `appsettings.Local.json`:
 ```json
 {
-  "AzureOpenAiEndpoint": "https://your-resource.openai.azure.com/",
-  "AzureOpenAiKey": "your-api-key-here",
-  "AzureOpenAiDeploymentName": "your-deployment-name",
-  "GenAiApiKey": "your-custom-api-key-for-authentication"
+  "AzureOpenAI": {
+    "DeploymentName": "gpt-4o",
+    "Endpoint": "Your_Endpoint_Here",
+    "ApiKey": "Your_ApiKey_Here"
+  },
+  "AzureDevOps": {
+    "UseMock": true,
+    "OrganizationUrl": "https://dev.azure.com/yourorganization",
+    "ProjectName": "YourProject",
+    "PersonalAccessToken": ""
+  },    
+  "ServiceNow": {
+    "UseMock": true,
+    "InstanceUrl": "https://yourinstance.service-now.com",
+    "Username": "",
+    "Password": ""
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning",
+      "Microsoft.SemanticKernel": "Warning"
+    }
+  }
 }
 ```
 
@@ -123,11 +143,6 @@ dotnet run
 
 4. Access the Swagger UI at `https://localhost:5001/swagger` (or your configured port)
 
-### Docker Deployment
-```bash
-docker build -t gen-ai-api-agents .
-docker run -p 8080:8080 -e AzureOpenAiEndpoint="your-endpoint" -e AzureOpenAiKey="your-key" gen-ai-api-agents
-```
 
 ## 📡 API Usage Examples
 
@@ -139,51 +154,57 @@ api-key: your-api-key
 
 {
   "sessionId": "optional-session-id",
-  "prompt": "I'm looking for information about a missing person named John Doe"
+  "userId": "some-user-id","
+  "prompt": "What workitems are assigned to John Doe?"
 }
 ```
 
-### Multi-Agent Movie Chat
-```http
-POST /chat/movies
-Content-Type: application/json
-api-key: your-api-key
+### Example Prompts to test
+```{
+  "sessionId": "session123",
+  "userId": "user456",
+  "prompt": "I am looking for information about a missing person named John Doe."
+}
+```
 
-{
-  "sessionId": "movie-session-123",
-  "prompt": "What movies are available tonight?"
+```{
+  "sessionId": "session123",
+  "userId": "user456",
+  "prompt": "Give me a list of the most recent workitems"
 }
 ```
 
 ### Response Format
 ```json
 {
-  "chatResponse": "I can help you with that. Let me search for information about John Doe. Can you provide more details such as when he was reported missing or the location?"
+  
+  "coordinatorResponse": "Routing your request to the DevOps Agent",
+  "devOpsResponse": "Here are your results",
+  "serviceNowResponse": ""
 }
 ```
 
 ## 🎭 Agent Behavior Patterns
 
-### Missing Persons Agent
-- Focuses exclusively on missing person inquiries
+### Coordinator Agent
+- Focuses exclusively on routing requests to the DevOps or ServiceNow agents
 - Asks clarifying questions to gather complete information
-- Maintains conversation context across multiple interactions
 - Provides structured responses based on available data
 
-### Movie Multi-Agent System
-1. **Router Agent**: Analyzes intent and routes to appropriate specialist
-2. **Movie Agent**: Handles movie listings and showtime information
-3. **Purchase Agent**: Manages ticket purchases and refunds
+### DevOps Agent
+1. Focuses on Azure DevOps requests
+2. Uses specific prompts to extract relevant information
+3. Leverages DevOpsPlugin for API interactions
 
-### Agent Characteristics
-- **Context Awareness**: Uses conversation history for follow-up questions
-- **Domain Specificity**: Agents stay within their designated expertise areas
-- **Clarification**: Asks one question at a time to avoid overwhelming users
-- **Verification**: Confirms information before executing actions
+### ServiceNow Agent
+- Focuses on ServiceNow related requests
+- Uses specific prompts to extract relevant information
+- Leverages ServiceNowPlugin for API interactions
 
 ## 🔧 Development Notes
 
 ### Session Management
+** ChatHistoryManager and ChatHistoryCleanupService are included for reference but not actively used in this demo. They illustrate how to manage persistent chat sessions.**
 - Sessions automatically expire after 1 hour of inactivity
 - Background cleanup service runs hourly to maintain performance
 - Each session maintains independent conversation history

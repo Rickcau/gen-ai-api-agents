@@ -9,12 +9,12 @@
         private readonly List<string> _includedPaths = new List<string>
         {
             "/Chat",
-            "/Chat/patch-missing-person"
         };
 
         public ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
+            var test = configuration["Swagger:ApiKey"];
             _apiKey = configuration.GetValue<string>("GenAiApiKey") ?? throw new ArgumentNullException("GenAiApiKey");
         }
 
