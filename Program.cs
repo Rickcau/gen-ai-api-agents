@@ -13,9 +13,14 @@ builder.Configuration
     .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true); // Add this line
 
 var configuration = builder.Configuration;
-var apiDeploymentName = configuration.GetValue<string>("AzureOpenAiDeploymentName") ?? throw new ArgumentException("The AzureOpenAiDeploymentName is not configured or is empty.");
-var apiEndpoint = configuration.GetValue<string>("AzureOpenAiEndpoint") ?? throw new ArgumentException("The AzureOpenAiEndpoint is not configured or is empty.");
-var apiKey = configuration.GetValue<string>("AzureOpenAiKey") ?? throw new ArgumentException("The AzureOpenAiKey is not configured or is empty.");
+var mytest = configuration["AzureOpenAI:DeploymentName"] ?? throw new ArgumentException("The AzureOpenAI:DeploymentName is not configured or is empty.");
+var endpoint = configuration["AzureOpenAI:Endpoint"] ?? throw new ArgumentException("The AzureOpenAI:Endpoint is not configured or is empty.");
+var apiKey1 = configuration["AzureOpenAI:ApiKey"] ?? throw new ArgumentException("The AzureOpenAI:ApiKey is not configured or is empty.");
+
+
+var apiDeploymentName = configuration["AzureOpenAI:DeploymentName"] ?? throw new ArgumentException("The AzureOpenAI:DeploymentName is not configured or is empty.");
+var apiEndpoint = configuration["AzureOpenAI:Endpoint"] ?? throw new ArgumentException("The AzureOpenAI:Endpoint is not configured or is empty.");
+var apiKey = configuration["AzureOpenAI:ApiKey"] ?? throw new ArgumentException("The AzureOpenAI:ApiKey is not configured or is empty.");
 
 // Add services to the container.
 builder.Services.AddApplicationInsightsTelemetry();
@@ -25,9 +30,10 @@ builder.Services.AddTransient<Kernel>(s =>
 {
     var builder = Kernel.CreateBuilder();
     builder.AddAzureOpenAIChatCompletion(
-        apiDeploymentName,
-        apiEndpoint,
-        apiKey);
+        serviceId: "azure-openai",
+        deploymentName: apiDeploymentName,
+        endpoint: apiEndpoint,
+        apiKey: apiKey);
 
     return builder.Build();
 });
@@ -40,6 +46,7 @@ builder.Services.AddSingleton<IChatHistoryManager>(sp =>
     string systemmsg = CorePrompts.GetSystemPromptTest();
     return new ChatHistoryManager(systemmsg);
 });
+
 
 builder.Services.AddHostedService<ChatHistoryCleanupService>();
 

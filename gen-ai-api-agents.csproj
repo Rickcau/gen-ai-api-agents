@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <NoWarn>CS8618,IDE0009,CA1051,CA1050,CA1707,CA2007,VSTHRD111,CS1591,RCS1110,CA5394,SKEXP0001,SKEXP0010,SKEXP0020,SKEXP0040,SKEXP0050,SKEXP0060,SKEXP0070,SKEXP0101,SKEXP0110</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>gen_ai_api_agents</RootNamespace>
     <UserSecretsId>1ba7f197-a22b-4cb4-838c-1cb8c6c89239</UserSecretsId>
@@ -11,7 +12,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.20.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.64.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Abstractions" Version="1.64.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.64.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Orchestration" Version="1.64.0-preview" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
   </ItemGroup>
@@ -24,7 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Interfaces\" />
-    <Folder Include="Plugins\" />
   </ItemGroup>
 
 </Project>

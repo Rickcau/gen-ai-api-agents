@@ -160,6 +160,10 @@ _NCrunch_*
 .*crunch*.local.xml
 nCrunchTemp_*
 
+# Misc files
+*.zip
+NL2SQL-Backup.txt
+
 # MightyMoose
 *.mm.*
 AutoTest.Net/
@@ -305,3 +309,4 @@ paket-files/
 __pycache__/
 *.pyc
 /api-missing-persons/appsettings.Local.json
+company-data-converter/.env
